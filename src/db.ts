@@ -23,7 +23,7 @@ export const usersCollection = dbBlogs.collection<any>('users')
 export const refreshTokensBlacklistedCollection =
     dbBlogs.collection<RefreshTokensBlacklistDB>("refresh-tokens-blacklisted");
 // export const APICallHistoryModelClass = mongoose.model<CallToAPIType>("APICallHistory",APICallHistorySchema);
-
+//
 export const commentLikesCollection = dbBlogs.collection('commentLikes');
 export const postLikesCollection = dbBlogs.collection('postLikes');
 export const runDB = async () => {
@@ -37,3 +37,4 @@ export const runDB = async () => {
         await client.close();
     }
 };
+// todo Надо бы переходить на NEST
