@@ -18,6 +18,8 @@ export const blogCollection = dbBlogs.collection<BlogType>('blogs')
 export const postCollection = dbBlogs.collection<PostType>('post')
 export const commentsCollection = dbBlogs.collection('comments')
 export const usersCollection = dbBlogs.collection<any>('users')
+
+
 export const refreshTokensBlacklistedCollection =
     dbBlogs.collection<RefreshTokensBlacklistDB>("refresh-tokens-blacklisted");
 // export const APICallHistoryModelClass = mongoose.model<CallToAPIType>("APICallHistory",APICallHistorySchema);
