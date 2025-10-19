@@ -69,7 +69,7 @@ export class BlogsRepository {
     };
   }
 
-  // Создать новый блог
+  // Создать новый блог 333
   // async createBlog(createBlogDto: CreateBlogDto): Promise<BlogType> {
   //   const blogData = {
   //     id: uuidv4(), // Генерируем UUID как в вашем коде
