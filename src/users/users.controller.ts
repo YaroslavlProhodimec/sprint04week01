@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Query, Param, Body, HttpStatus, HttpCode, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -19,5 +19,20 @@ export class UsersController {
     };
 
     return this.usersService.getAllUsers(sortData);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createUser(@Body() body: { login: string; email: string; password: string }) {
+    return this.usersService.createUser(body.login, body.email, body.password);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('id') id: string): Promise<void> {
+    const deleted = await this.usersService.deleteUser(id);
+    if (!deleted) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 }

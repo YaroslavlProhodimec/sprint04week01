@@ -1,4 +1,4 @@
-// src/users/users.repository.ts  // ⚠️ Исправил имя файла
+// src/users/users.repository.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -70,6 +70,44 @@ export class UsersRepository {
         createdAt: user.accountData.createdAt
       }))
     };
+  }
+
+  // Создать нового пользователя
+  async createUser(login: string, email: string, password: string): Promise<any> {
+    const passwordSalt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, passwordSalt);
+
+    const userData = {
+      accountData: {
+        login,
+        email,
+        passwordHash,
+        passwordSalt,
+        createdAt: new Date()
+      },
+      isConfirmed: false
+    };
+
+    const newUser = new this.userModel(userData);
+    await newUser.save();
+
+    return {
+      id: (newUser._id as any).toString(),
+      login: newUser.accountData.login,
+      email: newUser.accountData.email,
+      createdAt: newUser.accountData.createdAt
+    };
+  }
+
+  // Удалить пользователя
+  async deleteUser(id: string): Promise<boolean> {
+    try {
+      const result = await this.userModel.deleteOne({ _id: id }).exec();
+      return result.deletedCount > 0;
+    } catch (error) {
+      // Если id не является валидным ObjectId, возвращаем false
+      return false;
+    }
   }
 
   // Найти пользователя по ID

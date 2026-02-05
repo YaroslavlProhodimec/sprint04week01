@@ -1,11 +1,16 @@
 // src/blogs/blogs.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { BlogsRepository } from './blogs.repository';
 import { CreateBlogDto, SortDataType, UpdateBlogDto } from '../types/blog/input';
+import { PostsRepository } from '../posts/posts.repository';
 
 @Injectable()
 export class BlogsService {
-  constructor(private readonly blogsRepository: BlogsRepository) {}
+  constructor(
+    private readonly blogsRepository: BlogsRepository,
+    @Inject(forwardRef(() => PostsRepository))
+    private readonly postsRepository: PostsRepository
+  ) {}
 
   async getAllBlogs(sortData: SortDataType) {
     return this.blogsRepository.getBlogs(sortData);
@@ -28,10 +33,10 @@ export class BlogsService {
   }
 
   async getBlogPosts(blogId: string, query: any) {
-    return this.blogsRepository.getBlogPosts(blogId, query);
+    return this.postsRepository.getBlogPosts(blogId, query);
   }
 
   async createPostForBlog(blogId: string, postData: any) {
-    return this.blogsRepository.createPostForBlog(blogId, postData);
+    return this.postsRepository.createPostForBlog(blogId, postData);
   }
 }

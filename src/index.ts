@@ -21,7 +21,8 @@ async function createApp() {
       }
     );
 
-    app.setGlobalPrefix('api');
+    // Убираем префикс для совместимости с тестами
+    // app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -36,9 +37,10 @@ async function createApp() {
         message: 'API is running',
         version: '1.0.0',
         endpoints: {
-          root: '/api',
-          blogs: '/api/blogs',
-          users: '/api/users'
+          blogs: '/blogs',
+          posts: '/posts',
+          users: '/users',
+          testing: '/testing/all-data'
         }
       });
     });
