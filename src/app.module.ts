@@ -11,8 +11,8 @@ import { BlogsRepository } from './blogs/blogs.repository';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Доступ к переменным окружения везде
-      envFilePath: process.env.NODE_ENV === 'production' ? undefined : '.env',
-      ignoreEnvFile: process.env.NODE_ENV === 'production', // На Vercel используем переменные окружения из панели
+      envFilePath: process.env.VERCEL ? undefined : '.env', // На Vercel не используем .env файл
+      ignoreEnvFile: !!process.env.VERCEL, // На Vercel используем переменные окружения из панели
     }),
     DatabaseModule,
     BlogsModule,

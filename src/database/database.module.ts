@@ -9,26 +9,21 @@ import { DatabaseInitService } from './database-init.service';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const mongoUrl = configService.get<string>('MONGO_URL') || 'mongodb://localhost:27017';
+        // Проверяем переменные окружения
+        const mongoUrl = configService.get<string>('MONGO_URL') || process.env.MONGO_URL;
         
-        // Для mongodb+srv URL база данных может быть указана в URL или отдельно
-        // Если база не указана в URL, используем dbName
-        const config: any = {
-          uri: mongoUrl,
-        };
-        
-        // Добавляем dbName только если его нет в URL
-        if (!mongoUrl.includes('/node-blogs') && !mongoUrl.includes('?') && !mongoUrl.includes('&')) {
-          config.dbName = 'node-blogs';
-        } else if (!mongoUrl.match(/\/[^/?]+(\?|$)/)) {
-          // Если в URL нет базы данных, добавляем её
-          const separator = mongoUrl.includes('?') ? '&' : '?';
-          config.uri = `${mongoUrl}${separator}dbName=node-blogs`;
+        if (!mongoUrl) {
+          console.error('❌ MONGO_URL is not defined!');
+          console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('MONGO')));
+          throw new Error('MONGO_URL is not defined in environment variables');
         }
         
         console.log(`🔌 Подключение к MongoDB Atlas...`);
+        console.log(`📍 MongoDB URL: ${mongoUrl.substring(0, 30)}...`);
         
-        return config;
+        return {
+          uri: mongoUrl,
+        };
       },
       inject: [ConfigService],
     }),
