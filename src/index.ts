@@ -30,6 +30,19 @@ async function createApp() {
       })
     );
 
+    // Добавляем обработчик для корневого пути
+    expressApp.get('/', (req, res) => {
+      res.json({
+        message: 'API is running',
+        version: '1.0.0',
+        endpoints: {
+          root: '/api',
+          blogs: '/api/blogs',
+          users: '/api/users'
+        }
+      });
+    });
+
     await app.init();
     cachedApp = expressApp;
     return expressApp;
