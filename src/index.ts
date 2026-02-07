@@ -22,7 +22,7 @@ async function createApp() {
     );
 
     // Убираем префикс для совместимости с тестами
-    app.setGlobalPrefix('api');
+    // app.setGlobalPrefix('api');
     app.useGlobalPipes(
       new ValidationPipe({
         transform: true,

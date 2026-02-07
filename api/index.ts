@@ -17,7 +17,7 @@ async function createApp() {
     new ExpressAdapter(expressApp)
   );
 
-  app.setGlobalPrefix('api');
+  // app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
