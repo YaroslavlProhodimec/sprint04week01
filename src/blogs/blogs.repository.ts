@@ -7,6 +7,26 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateBlogDto, UpdateBlogDto, SortDataType } from '../types/blog/input';
 import { BlogType } from '../types/blog/output';
 
+/**
+ * Приводит документ блога к типу BlogType.
+ * id без подчёркивания: в схеме Blog объявлено поле id (строка, uuid). Mongoose сохраняет его
+ * в коллекцию вместе с _id (который добавляет сама MongoDB). В БД лежат оба поля: _id и id.
+ * Сначала берём наш id; если его нет — используем _id.toString() (fallback для документов без поля id).
+ */
+function toBlogType(blogObj: Record<string, unknown>): BlogType {
+  return {
+    id: (blogObj.id as string) ?? (blogObj._id as any)?.toString?.() ?? '',
+    name: blogObj.name as string,
+    description: blogObj.description as string,
+    websiteUrl: blogObj.websiteUrl as string,
+    createdAt:
+      blogObj.createdAt instanceof Date
+        ? blogObj.createdAt.toISOString()
+        : (blogObj.createdAt as string),
+    isMembership: Boolean(blogObj.isMembership),
+  } as BlogType;
+}
+
 @Injectable()
 export class BlogsRepository {
   constructor(
@@ -44,7 +64,7 @@ export class BlogsRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs.map(blog => blog.toObject({ versionKey: false }))
+      items: blogs.map((blog) => toBlogType(blog.toObject({ versionKey: false }) as Record<string, unknown>)),
     };
   }
 
@@ -55,12 +75,8 @@ export class BlogsRepository {
       .exec();
 
     if (!blog) return null;
-    
-    const blogObj = blog.toObject({ versionKey: false });
-    return {
-      ...blogObj,
-      createdAt: blogObj.createdAt instanceof Date ? blogObj.createdAt.toISOString() : blogObj.createdAt
-    } as BlogType;
+    const blogObj = blog.toObject({ versionKey: false }) as Record<string, unknown>;
+    return toBlogType(blogObj);
   }
 
   // Создать новый блог
@@ -75,15 +91,8 @@ export class BlogsRepository {
     const newBlog = new this.blogModel(blogData);
     await newBlog.save();
 
-    const blogObj = newBlog.toObject({ versionKey: false });
-    const result = { ...blogObj };
-    if (result._id) {
-      delete (result as any)._id;
-    }
-    return {
-      ...result,
-      createdAt: result.createdAt instanceof Date ? result.createdAt.toISOString() : result.createdAt
-    } as BlogType;
+    const blogObj = newBlog.toObject({ versionKey: false }) as Record<string, unknown>;
+    return toBlogType(blogObj);
   }
 
   // Обновить блог
