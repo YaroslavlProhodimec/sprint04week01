@@ -16,6 +16,7 @@ async function bootstrap() {
   }));
 
   await app.listen(3001);
-  console.log('🚀 Сервер запущен на http://localhost:3001/api');
+  console.log('🚀 Сервер запущен на http://localhost:3001');
+  console.log('   Маршруты: /blogs, /posts, /users, /testing/all-data');
 }
  bootstrap();

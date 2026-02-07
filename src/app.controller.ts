@@ -11,15 +11,19 @@ export class AppController {
     return res.json({
       message: 'API is running',
       endpoints: {
-        root: '/api',
-        blogs: '/api/blogs',
-        users: '/api/users'
+        blogs: 'GET/POST /blogs, GET/PUT/DELETE /blogs/:id',
+        posts: 'GET/POST /posts, GET/PUT/DELETE /posts/:id',
+        users: 'GET/POST /users, DELETE /users/:id',
+        testing: 'DELETE /testing/all-data'
       }
     });
   }
 
   @Get('api')
-  getHello(): string {
-    return this.appService.getHello();
+  getApi(@Res() res: Response) {
+    return res.json({
+      message: 'API root',
+      try: 'http://localhost:3001/ or http://localhost:3001/blogs'
+    });
   }
 }
