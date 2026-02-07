@@ -64,7 +64,7 @@ export class BlogsRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs.map((blog) => toBlogType(blog.toObject({ versionKey: false }) as Record<string, unknown>)),
+      items: blogs.map((blog) => toBlogType(blog.toObject({ versionKey: false }) as unknown as Record<string, unknown>)),
     };
   }
 
@@ -75,7 +75,7 @@ export class BlogsRepository {
       .exec();
 
     if (!blog) return null;
-    const blogObj = blog.toObject({ versionKey: false }) as Record<string, unknown>;
+    const blogObj = blog.toObject({ versionKey: false }) as unknown as Record<string, unknown>;
     return toBlogType(blogObj);
   }
 
@@ -91,7 +91,7 @@ export class BlogsRepository {
     const newBlog = new this.blogModel(blogData);
     await newBlog.save();
 
-    const blogObj = newBlog.toObject({ versionKey: false }) as Record<string, unknown>;
+    const blogObj = newBlog.toObject({ versionKey: false }) as unknown as Record<string, unknown>;
     return toBlogType(blogObj);
   }
 
