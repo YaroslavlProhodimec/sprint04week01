@@ -32,8 +32,8 @@ export class BlogsService {
     return this.blogsRepository.deleteBlog(id);
   }
 
-  async getBlogPosts(blogId: string, query: any) {
-    return this.postsRepository.getBlogPosts(blogId, query);
+  async getBlogPosts(blogId: string, query: any, userId?: string) {
+    return this.postsRepository.getBlogPosts(blogId, query, userId);
   }
 
   async createPostForBlog(blogId: string, postData: any) {
