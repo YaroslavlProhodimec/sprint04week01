@@ -1,46 +1,37 @@
-import { ObjectId } from 'mongodb';
-import { OutputPostType, PostType } from './output';
-import { postLikesCollection, usersCollection } from '../../db';
+import type { PostLikesRepository } from '../../post-likes/post-likes.repository';
+import type { UsersRepository } from '../../users/users.repository';
 
-export const postMapper = async (post: any, userId?: string) => {
-  const postId = post.id ?? post._id?.toString();
+export interface PostMapperDeps {
+  postLikesRepository: PostLikesRepository;
+  usersRepository: UsersRepository;
+}
 
-  const likesCount = await postLikesCollection
-    .countDocuments({ postId, likeStatus: 'Like' });
-  const dislikesCount = await postLikesCollection
-    .countDocuments({ postId, likeStatus: 'Dislike' });
+export async function postMapper(
+  post: any,
+  userId: string | undefined,
+  deps: PostMapperDeps,
+) {
+  const postId = post.id ?? post._id?.toString() ?? '';
+
+  const [likesCount, dislikesCount] = await Promise.all([
+    deps.postLikesRepository.countByPostAndStatus(postId, 'Like'),
+    deps.postLikesRepository.countByPostAndStatus(postId, 'Dislike'),
+  ]);
 
   let myStatus: 'Like' | 'Dislike' | 'None' = 'None';
   if (userId) {
-    const myLike = await postLikesCollection.findOne({
-      postId,
-      userId: userId.toString(),
-    });
-    if (myLike && typeof myLike === 'object' && 'likeStatus' in myLike) {
-      myStatus = myLike.likeStatus as 'Like' | 'Dislike' | 'None';
-    }
+    const status = await deps.postLikesRepository.findMyStatus(postId, userId);
+    if (status) myStatus = status;
   }
 
-  const newestLikesRaw = await postLikesCollection
-    .find({ postId, likeStatus: 'Like' })
-    .sort({ addedAt: -1 })
-    .limit(3)
-    .toArray();
-
+  const newestLikesRaw = await deps.postLikesRepository.findNewestLikes(postId, 3);
   const newestLikes = await Promise.all(
-    (Array.isArray(newestLikesRaw) ? newestLikesRaw : []).map(async (like: any) => {
-      let user: any = null;
-      try {
-        user = await usersCollection.findOne({
-          _id: new ObjectId(like.userId),
-        });
-      } catch {
-        // userId может быть невалидным ObjectId
-      }
+    newestLikesRaw.map(async (like) => {
+      const login = await deps.usersRepository.getLoginByUserId(like.userId);
       return {
-        addedAt: like.addedAt,
+        addedAt: like.addedAt instanceof Date ? like.addedAt.toISOString() : String(like.addedAt),
         userId: like.userId,
-        login: user?.accountData?.login ?? 'unknown',
+        login: login ?? 'unknown',
       };
     }),
   );
@@ -54,7 +45,7 @@ export const postMapper = async (post: any, userId?: string) => {
         : String(rawCreatedAt ?? '');
 
   return {
-    id: postId ?? '',
+    id: postId,
     title: post.title,
     shortDescription: post.shortDescription,
     content: post.content,
@@ -68,4 +59,4 @@ export const postMapper = async (post: any, userId?: string) => {
       newestLikes,
     },
   };
-};
+}

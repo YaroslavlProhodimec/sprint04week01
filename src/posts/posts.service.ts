@@ -8,12 +8,12 @@ import { OutputPostType } from '../types/post/output';
 export class PostsService {
   constructor(private readonly postsRepository: PostsRepository) {}
 
-  async getAllPosts(query: any) {
-    return this.postsRepository.getPosts(query);
+  async getAllPosts(query: any, userId?: string) {
+    return this.postsRepository.getPosts(query, userId);
   }
 
-  async getPostById(id: string): Promise<OutputPostType | null> {
-    return this.postsRepository.getPostById(id);
+  async getPostById(id: string, userId?: string): Promise<OutputPostType | null> {
+    return this.postsRepository.getPostById(id, userId);
   }
 
   async createPost(createPostDto: CreatePostDto): Promise<OutputPostType> {
@@ -28,8 +28,8 @@ export class PostsService {
     return this.postsRepository.deletePost(id);
   }
 
-  async getBlogPosts(blogId: string, query: any) {
-    return this.postsRepository.getBlogPosts(blogId, query);
+  async getBlogPosts(blogId: string, query: any, userId?: string) {
+    return this.postsRepository.getBlogPosts(blogId, query, userId);
   }
 
   async createPostForBlog(blogId: string, postData: CreatePostDto): Promise<OutputPostType> {

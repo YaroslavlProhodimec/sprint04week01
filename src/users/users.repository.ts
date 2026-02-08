@@ -110,6 +110,16 @@ export class UsersRepository {
     }
   }
 
+  /** По _id пользователя вернуть логин (для маппера постов/лайков). */
+  async getLoginByUserId(userId: string): Promise<string | null> {
+    try {
+      const user = await this.userModel.findById(userId).lean().exec();
+      return (user as any)?.accountData?.login ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   // Найти пользователя по ID
   // async findById(id: string): Promise<UserDocument | null> {
   //   if (!id.match(/^[0-9a-fA-F]{24}$/)) {  // ⚠️ Добавил проверку ObjectId
