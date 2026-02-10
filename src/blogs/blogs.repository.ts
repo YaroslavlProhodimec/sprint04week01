@@ -57,20 +57,22 @@ export class BlogsRepository {
       : {};
 
     // Выполняем запрос с пагинацией
+    const numPage = +pageNumber;
+    const numSize = +pageSize;
     const blogs = await this.blogModel
       .find(filter, { _id: 0 }) // Исключаем _id как в вашем коде
       .sort({ [sortBy]: sortDirection === 'desc' ? -1 : 1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
+      .skip((numPage - 1) * numSize)
+      .limit(numSize)
       .exec();
 
     const totalCount = await this.blogModel.countDocuments(filter);
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const pagesCount = Math.ceil(totalCount / numSize);
 
     return {
       pagesCount,
-      page: pageNumber,
-      pageSize,
+      page: numPage,
+      pageSize: numSize,
       totalCount,
       items: blogs.map((blog) =>
         toBlogType(
