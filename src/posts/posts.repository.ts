@@ -88,27 +88,23 @@ export class PostsRepository {
       id: uuidv4(),
       ...createPostDto,
       blogName: blog.name,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     const newPost = new this.postModel(postData);
     await newPost.save();
 
-    const postObj = newPost.toObject({ versionKey: false });
-    const result = { ...postObj };
-    if (result._id) {
-      delete (result as any)._id;
-    }
-    return {
-      ...result,
-      createdAt: result.createdAt instanceof Date ? result.createdAt.toISOString() : result.createdAt
-    } as OutputPostType;
+    // После сохранения маппим пост через postMapper, чтобы сразу вернуть extendedLikesInfo
+    const postObj = newPost.toObject({
+      versionKey: false,
+    }) as unknown as Record<string, unknown>;
+    return postMapper(postObj, undefined, this.getMapperDeps());
   }
 
   // Обновить пост
   async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<boolean> {
     // Проверяем существование блога, если blogId изменился
-    let updateData: any = { ...updatePostDto };
+    const updateData: any = { ...updatePostDto };
     if (updatePostDto.blogId) {
       const blog = await this.blogsRepository.getBlogById(updatePostDto.blogId);
       if (!blog) {
