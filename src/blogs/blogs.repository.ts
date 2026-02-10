@@ -1,11 +1,12 @@
 // src/blogs/blogs.repository.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../schemas/blog.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateBlogDto, UpdateBlogDto, SortDataType } from '../types/blog/input';
 import { BlogType } from '../types/blog/output';
+import { PostsRepository } from '../posts/posts.repository';
 
 /**
  * Приводит документ блога к типу BlogType.
@@ -30,7 +31,9 @@ function toBlogType(blogObj: Record<string, unknown>): BlogType {
 @Injectable()
 export class BlogsRepository {
   constructor(
-    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @Inject(forwardRef(() => PostsRepository))
+    private postsRepository: PostsRepository,
   ) {}
 
   // Получить все блоги с пагинацией и поиском
@@ -118,17 +121,9 @@ export class BlogsRepository {
     return this.getBlogById(blogId);
   }
 
-  // Получить посты блога (если нужно)
-  async getBlogPosts(blogId: string, query: any) {
-    // Здесь будет логика получения постов блога
-    // Пока заглушка
-    return {
-      pagesCount: 0,
-      page: 1,
-      pageSize: 10,
-      totalCount: 0,
-      items: []
-    };
+  // Получить посты блога по blogId (делегируем в PostsRepository.getBlogPosts: там postMapper с extendedLikesInfo)
+  async getPostsByBlogId(blogId: string, sortData: any, userId?: string) {
+    return this.postsRepository.getBlogPosts(blogId, sortData, userId);
   }
 
   // Создать пост для блога (если нужно)
