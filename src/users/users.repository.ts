@@ -48,20 +48,23 @@ export class UsersRepository {
 
     const filter = searchFilters.length > 0 ? { $or: searchFilters } : {};
 
+    const numPage = +pageNumber;
+    const numSize = +pageSize;
+
     const users = await this.userModel
       .find(filter)
       .sort({ [sortBy]: sortDirection === 'desc' ? -1 : 1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
+      .skip((numPage - 1) * numSize)
+      .limit(numSize)
       .exec();
 
     const totalCount = await this.userModel.countDocuments(filter);
-    const pageCount = Math.ceil(totalCount / pageSize);
+    const pageCount = Math.ceil(totalCount / numSize);
 
     return {
       pagesCount: pageCount,
-      page: pageNumber,
-      pageSize,
+      page: numPage,
+      pageSize: numSize,
       totalCount,
       items: users.map(user => ({
         id: (user._id as any).toString(),
