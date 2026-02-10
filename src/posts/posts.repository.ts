@@ -57,8 +57,8 @@ export class PostsRepository {
 
     return {
       pagesCount,
-      page: pageNumber,
-      pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount,
       items,
     };
@@ -158,8 +158,8 @@ export class PostsRepository {
 
     return {
       pagesCount,
-      page: pageNumber,
-      pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount,
       items,
     };
