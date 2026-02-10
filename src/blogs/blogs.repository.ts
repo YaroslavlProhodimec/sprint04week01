@@ -83,6 +83,7 @@ export class BlogsRepository {
   }
 
   // Создать новый блог
+  // Создать новый блог
   async createBlog(createBlogDto: CreateBlogDto): Promise<BlogType> {
     const blogData = {
       id: uuidv4(), // Генерируем UUID как в вашем коде
