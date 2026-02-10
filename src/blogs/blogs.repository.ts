@@ -4,7 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../schemas/blog.schema';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateBlogDto, UpdateBlogDto, SortDataType } from '../types/blog/input';
+import {
+  CreateBlogDto,
+  UpdateBlogDto,
+  SortDataType,
+} from '../types/blog/input';
 import { BlogType } from '../types/blog/output';
 import { PostsRepository } from '../posts/posts.repository';
 
@@ -16,6 +20,7 @@ import { PostsRepository } from '../posts/posts.repository';
  */
 function toBlogType(blogObj: Record<string, unknown>): BlogType {
   return {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     id: (blogObj.id as string) ?? (blogObj._id as any)?.toString?.() ?? '',
     name: blogObj.name as string,
     description: blogObj.description as string,
@@ -43,7 +48,7 @@ export class BlogsRepository {
       sortBy = 'createdAt',
       sortDirection = 'desc',
       pageNumber = 1,
-      pageSize = 10
+      pageSize = 10,
     } = sortData;
 
     // Фильтр поиска по имени
@@ -67,7 +72,14 @@ export class BlogsRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs.map((blog) => toBlogType(blog.toObject({ versionKey: false }) as unknown as Record<string, unknown>)),
+      items: blogs.map((blog) =>
+        toBlogType(
+          blog.toObject({ versionKey: false }) as unknown as Record<
+            string,
+            unknown
+          >,
+        ),
+      ),
     };
   }
 
@@ -78,49 +90,49 @@ export class BlogsRepository {
       .exec();
 
     if (!blog) return null;
-    const blogObj = blog.toObject({ versionKey: false }) as unknown as Record<string, unknown>;
+    const blogObj = blog.toObject({ versionKey: false }) as unknown as Record<
+      string,
+      unknown
+    >;
     return toBlogType(blogObj);
   }
 
-  // Создать новый блог
   // Создать новый блог
   async createBlog(createBlogDto: CreateBlogDto): Promise<BlogType> {
     const blogData = {
       id: uuidv4(), // Генерируем UUID как в вашем коде
       ...createBlogDto,
       createdAt: new Date().toISOString(),
-      isMembership: false
+      isMembership: false,
     };
 
     const newBlog = new this.blogModel(blogData);
     await newBlog.save();
 
-    const blogObj = newBlog.toObject({ versionKey: false }) as unknown as Record<string, unknown>;
+    const blogObj = newBlog.toObject({
+      versionKey: false,
+    }) as unknown as Record<string, unknown>;
     return toBlogType(blogObj);
   }
 
   // Обновить блог
   async updateBlog(id: string, updateBlogDto: UpdateBlogDto): Promise<boolean> {
-    const result = await this.blogModel
-      .updateOne({ id }, updateBlogDto)
-      .exec();
+    const result = await this.blogModel.updateOne({ id }, updateBlogDto).exec();
 
     return result.matchedCount === 1;
   }
 
   // Удалить блог
   async deleteBlog(id: string): Promise<boolean> {
-    const result = await this.blogModel
-      .deleteOne({ id })
-      .exec();
+    const result = await this.blogModel.deleteOne({ id }).exec();
 
     return result.deletedCount === 1;
   }
 
   // Найти блог для проверки существования (для постов)
-  async findBlogForPost(blogId: string): Promise<BlogType | null> {
-    return this.getBlogById(blogId);
-  }
+  // async findBlogForPost(blogId: string): Promise<BlogType | null> {
+  //   return this.getBlogById(blogId);
+  // }
 
   // Получить посты блога по blogId (делегируем в PostsRepository.getBlogPosts: там postMapper с extendedLikesInfo)
   async getPostsByBlogId(blogId: string, sortData: any, userId?: string) {
@@ -128,16 +140,17 @@ export class BlogsRepository {
   }
 
   // Создать пост для блога (если нужно)
-  async createPostForBlog(blogId: string, postData: any) {
-    // Здесь будет логика создания поста для блога
-    // Пока заглушка
-    const blog = await this.getBlogById(blogId);
-    return {
-      id: uuidv4(),
-      ...postData,
-      blogId: blogId,
-      blogName: blog?.name || '',
-      createdAt: new Date().toISOString()
-    };
-  }
+  // async createPostForBlog(blogId: string, postData: any) {
+  //   // Здесь будет логика создания поста для блога
+  //   // Пока заглушка
+  //   const blog = await this.getBlogById(blogId);
+  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  //   return {
+  //     id: uuidv4(),
+  //     ...postData,
+  //     blogId: blogId,
+  //     blogName: blog?.name || '',
+  //     createdAt: new Date().toISOString(),
+  //   };
+  // }
 }
