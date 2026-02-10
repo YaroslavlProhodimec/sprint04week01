@@ -8,6 +8,7 @@ import {
   Delete,
   Param,
   Query,
+  Req,
   HttpStatus,
   HttpCode,
   NotFoundException,
@@ -85,16 +86,27 @@ export class BlogsController {
     }
   }
 
-  // GET /blogs/:id/posts - получить посты блога
+  // GET /blogs/:id/posts — посты по id блога (как BlogRepository.getPostsByBlogId(id, sortData, userId))
   @Get(':id/posts')
-  async getBlogPosts(@Param('id') blogId: string, @Query() query: any) {
-    const blog = await this.blogsService.getBlogById(blogId);
+  async getBlogPosts(
+    @Param('id') id: string,
+    @Query() query: any,
+    @Req() req: { userId?: string | null },
+  ) {
+    const sortData = {
+      sortBy: query.sortBy,
+      sortDirection: query.sortDirection,
+      pageNumber: query.pageNumber,
+      pageSize: query.pageSize,
+    };
+    const userId = req.userId ?? undefined;
 
-    if (!blog) {
-      throw new NotFoundException(`Blog with ID ${blogId} not found`);
+    const posts = await this.blogsService.getPostsByBlogId(id, sortData, userId);
+
+    if (!posts || posts.items.length < 1) {
+      throw new NotFoundException('Posts not found');
     }
 
-    const posts = await this.blogsService.getBlogPosts(blogId, query);
     return posts;
   }
 
