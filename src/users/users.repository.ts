@@ -48,12 +48,22 @@ export class UsersRepository {
 
     const filter = searchFilters.length > 0 ? { $or: searchFilters } : {};
 
+    // Маппинг полей API (login, email, createdAt) на пути в документе
+    const sortByField =
+      sortBy === 'login'
+        ? 'accountData.login'
+        : sortBy === 'email'
+          ? 'accountData.email'
+          : sortBy === 'createdAt'
+            ? 'accountData.createdAt'
+            : sortBy;
+
     const numPage = +pageNumber;
     const numSize = +pageSize;
 
     const users = await this.userModel
       .find(filter)
-      .sort({ [sortBy]: sortDirection === 'desc' ? -1 : 1 })
+      .sort({ [sortByField]: sortDirection === 'desc' ? -1 : 1 })
       .skip((numPage - 1) * numSize)
       .limit(numSize)
       .exec();
